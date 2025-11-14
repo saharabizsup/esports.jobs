@@ -1,26 +1,37 @@
-import React from 'react';
+import React, { useId } from 'react';
 
 import { useInventory } from './inventory-manager';
 
 export function LoadoutEditor(): JSX.Element {
   const { loadout, items, equipItem, unequipItem } = useInventory();
+  const sectionId = useId();
+  const descriptionId = `${sectionId}-description`;
 
   return (
-    <section className="loadout">
+    <section className="loadout" aria-labelledby={sectionId} aria-describedby={descriptionId}>
       <style>{loadoutEditorStyles}</style>
       <header>
-        <h2>Your showcase loadout</h2>
-        <p>Highlight up to four achievements, credentials, or cosmetics that represent your esports identity.</p>
+        <h2 id={sectionId}>Your showcase loadout</h2>
+        <p id={descriptionId}>
+          Highlight up to four achievements, credentials, or cosmetics that represent your esports identity.
+        </p>
       </header>
 
       <div className="loadout-grid">
         {loadout.slots.map((slot) => {
           const equippedItem = items.find((item) => item.id === slot.itemId);
           return (
-            <article className="slot" key={slot.id}>
+            <article
+              className="slot"
+              key={slot.id}
+              aria-labelledby={`${slot.id}-label`}
+              aria-describedby={`${slot.id}-requirements`}
+            >
               <header>
-                <h3>{slot.label}</h3>
-                <span>{slot.accepts.join(', ')}</span>
+                <h3 id={`${slot.id}-label`}>{slot.label}</h3>
+                <span id={`${slot.id}-requirements`}>
+                  Accepts: {slot.accepts.join(', ')}
+                </span>
               </header>
 
               {equippedItem ? (
@@ -28,7 +39,11 @@ export function LoadoutEditor(): JSX.Element {
                   <strong>{equippedItem.name}</strong>
                   <p>{equippedItem.description}</p>
                   <footer>
-                    <button type="button" onClick={() => unequipItem(slot.id)}>
+                    <button
+                      type="button"
+                      onClick={() => unequipItem(slot.id)}
+                      aria-label={`Unequip ${equippedItem.name} from ${slot.label}`}
+                    >
                       Unequip
                     </button>
                   </footer>
@@ -39,6 +54,8 @@ export function LoadoutEditor(): JSX.Element {
                   <select
                     onChange={(event) => equipItem(slot.id, event.target.value)}
                     value={slot.itemId ?? ''}
+                    aria-label={`Equip an item in the ${slot.label} slot`}
+                    aria-describedby={`${slot.id}-requirements`}
                   >
                     <option value="">Choose item</option>
                     {items

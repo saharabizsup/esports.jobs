@@ -1,0 +1,31 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'esports-jobs-api'
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - api.esports-jobs.svc.cluster.local:3000
+        labels:
+          service: xp-ledger
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        regex: (.*):(.*)
+        replacement: ${1}
+  - job_name: 'esports-jobs-web'
+    metrics_path: /healthz/metrics
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - web.esports-jobs.svc.cluster.local:8080
+        labels:
+          service: web-frontend
+
+rule_files:
+  - alerts.rules.yml
+
+# Example recording and alerting rules that can be expanded as the platform grows.
+# Place this file in the same directory as `alerts.rules.yml` to activate.

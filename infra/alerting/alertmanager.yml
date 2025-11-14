@@ -1,0 +1,39 @@
+route:
+  receiver: primary-pager
+  group_by: ['alertname', 'service']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 2h
+  routes:
+    - receiver: gameplay-chat
+      matchers:
+        - team="gameplay"
+    - receiver: platform-pager
+      matchers:
+        - severity="critical"
+
+receivers:
+  - name: primary-pager
+    pagerduty_configs:
+      - routing_key: ${PAGERDUTY_ROUTING_KEY}
+        severity: '{{ if eq .Labels.severity "critical" }}critical{{ else }}error{{ end }}'
+  - name: gameplay-chat
+    slack_configs:
+      - api_url: ${SLACK_WEBHOOK_URL}
+        channel: '#gameplay-alerts'
+        title: '{{ .CommonAnnotations.summary }}'
+        text: |
+          *Description:* {{ .CommonAnnotations.description }}
+          *Firing:* {{ len .Alerts }} alerts
+          *Severity:* {{ .CommonLabels.severity }}
+  - name: platform-pager
+    pagerduty_configs:
+      - routing_key: ${PLATFORM_PAGERDUTY_KEY}
+        severity: 'critical'
+        class: 'observability'
+        component: '{{ .CommonLabels.service | default "xp-ledger" }}'
+
+inhibit_rules:
+  - source_matchers: [severity="critical"]
+    target_matchers: [severity="warning"]
+    equal: ['alertname', 'service']

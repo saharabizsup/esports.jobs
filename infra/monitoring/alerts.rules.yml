@@ -1,0 +1,36 @@
+groups:
+  - name: esports-jobs-alerts
+    rules:
+      - alert: HighLedgerPersistenceLatency
+        expr: increase(api_request_duration_seconds_sum{operation="xp.storage.saveLedger"}[5m]) /
+          increase(api_request_duration_seconds_count{operation="xp.storage.saveLedger"}[5m]) > 0.25
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "XP ledger persistence is slower than expected"
+          description: |
+            The average latency of xp.storage.saveLedger exceeded 250ms for more than 5 minutes.
+            Investigate disk performance and recent deploys.
+      - alert: ExcessiveXpValidationFailures
+        expr: increase(api_request_errors_total{operation=~"xp.service.*",error="ValidationError"}[10m]) > 25
+        for: 10m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Multiple XP validation failures detected"
+          description: |
+            More than 25 validation errors were triggered in the last 10 minutes. Users may be
+            attempting to submit malformed or malicious payloads.
+      - alert: QuestUpdateErrorRate
+        expr: increase(http_server_errors_total{route="/progression/quests/.+/progress"}[5m]) > 5
+        for: 10m
+        labels:
+          severity: warning
+          team: gameplay
+        annotations:
+          summary: "Quest progression endpoint is returning errors"
+          description: |
+            Investigate recent deployments or upstream service failures impacting quest progress updates.

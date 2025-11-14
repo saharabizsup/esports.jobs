@@ -1,0 +1,53 @@
+# Vector configuration for collecting structured application logs and forwarding
+# them to OpenSearch with basic privacy guards applied.
+
+[sources.esports_jobs]
+  type = "file"
+  include = ["/var/log/esports-jobs/*.log"]
+  ignore_older_secs = 86400
+
+[transforms.parse_json]
+  type = "remap"
+  inputs = ["esports_jobs"]
+  source = "
+  . = merge(. , parse_json!(string!(.message)))
+  .timestamp = to_timestamp!(.timestamp)
+  "
+
+[transforms.enrich]
+  type = "remap"
+  inputs = ["parse_json"]
+  source = "
+  .environment = env!(\"RUNTIME_ENV\")
+  .service = .service ?? \"xp-ledger\"
+  .trace_id = .trace_id ?? get_env(\"TRACE_ID\")
+  del(.message)
+  "
+
+[transforms.redact]
+  type = "remap"
+  inputs = ["enrich"]
+  source = "
+  redact_fields = [\"user.email\", \"user.phone\", \"metadata.token\"]
+  for_each(redact_fields, |field| {
+    if exists(.(field)) {
+      .(field) = \"[REDACTED]\"
+    }
+  })
+  "
+
+[sinks.console]
+  type = "console"
+  inputs = ["redact"]
+  encoding.codec = "json"
+
+[sinks.opensearch]
+  type = "elasticsearch"
+  inputs = ["redact"]
+  endpoints = ["${OPENSEARCH_ENDPOINT}"]
+  auth.strategy = "basic"
+  auth.user = "${OPENSEARCH_USERNAME}"
+  auth.password = "${OPENSEARCH_PASSWORD}"
+  bulk.index = "esports-jobs-%Y-%m-%d"
+  request.retry.max_duration_secs = 600
+  tls.verify_certificate = true
