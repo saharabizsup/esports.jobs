@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Esports Jobs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #0f172a;
+      --fg: #f8fafc;
+      --accent: #38bdf8;
+      --muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at top, rgba(56, 189, 248, 0.15), transparent 60%), var(--bg);
+      color: var(--fg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 4rem 1.5rem 3rem;
+    }
+
+    header {
+      max-width: 720px;
+    }
+
+    h1 {
+      font-size: clamp(2.5rem, 8vw, 4rem);
+      margin-bottom: 1rem;
+      letter-spacing: -0.04em;
+    }
+
+    p.lead {
+      font-size: clamp(1.1rem, 3vw, 1.5rem);
+      color: var(--muted);
+      margin-bottom: 2.5rem;
+    }
+
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.85rem 1.75rem;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, #38bdf8, #3b82f6);
+      color: #0f172a;
+      font-weight: 700;
+      text-decoration: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 15px 30px rgba(59, 130, 246, 0.25);
+    }
+
+    .cta:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 35px rgba(59, 130, 246, 0.35);
+    }
+
+    .cta svg {
+      width: 1.15rem;
+      height: 1.15rem;
+    }
+
+    .features {
+      display: grid;
+      gap: 1.5rem;
+      margin: 4rem auto 0;
+      max-width: 960px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .feature {
+      padding: 1.75rem;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(148, 163, 184, 0.1);
+      border-radius: 1.25rem;
+      backdrop-filter: blur(12px);
+      text-align: left;
+    }
+
+    .feature h3 {
+      margin: 0 0 0.75rem;
+      font-size: 1.2rem;
+    }
+
+    .feature p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    footer {
+      margin-top: auto;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 3rem 1.25rem 2rem;
+      }
+
+      .feature {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Your Next Esports Opportunity Starts Here</h1>
+    <p class="lead">Discover curated esports roles across teams, leagues, and gaming startups. We're building the home base for talent and organizations to meet.</p>
+    <a class="cta" href="#">
+      Explore Jobs
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </a>
+  </header>
+
+  <section class="features">
+    <article class="feature">
+      <h3>Roles that matter</h3>
+      <p>Find positions in coaching, production, marketing, community management, and more—handpicked for esports professionals.</p>
+    </article>
+    <article class="feature">
+      <h3>For teams & startups</h3>
+      <p>Connect with top-tier talent ready to bring competitive edge and gaming culture to your organization.</p>
+    </article>
+    <article class="feature">
+      <h3>Built for the scene</h3>
+      <p>We're gamers building for gamers, shaping tools and workflows tailored to the fast-paced esports industry.</p>
+    </article>
+  </section>
+
+  <footer>
+    &copy; <span id="year"></span> Esports Jobs. All rights reserved.
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
