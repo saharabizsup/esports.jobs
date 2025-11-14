@@ -1,0 +1,168 @@
+import React, { useMemo, useState } from 'react';
+
+import { useInventory } from './inventory-manager';
+
+const filters = ['all', 'cosmetic', 'badge', 'tool', 'credential'] as const;
+type FilterValue = (typeof filters)[number];
+
+export function InventoryPanel(): JSX.Element {
+  const { items, toggleEquip } = useInventory();
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState<FilterValue>('all');
+
+  const filteredItems = useMemo(() => {
+    const lower = search.toLowerCase();
+    return items.filter((item) => {
+      if (filter !== 'all' && item.type !== filter) return false;
+      if (!lower) return true;
+      return (
+        item.name.toLowerCase().includes(lower) ||
+        (item.description?.toLowerCase().includes(lower) ?? false) ||
+        (item.tags?.some((tag) => tag.toLowerCase().includes(lower)) ?? false)
+      );
+    });
+  }, [items, search, filter]);
+
+  return (
+    <section className="inventory-panel">
+      <style>{inventoryPanelStyles}</style>
+      <header>
+        <h2>Inventory</h2>
+        <p>Manage everything you have unlocked from XP drops, scrims, and verified events.</p>
+      </header>
+
+      <div className="toolbar">
+        <input
+          type="search"
+          placeholder="Search items"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+
+        <div className="filters" role="tablist">
+          {filters.map((value) => (
+            <button
+              type="button"
+              key={value}
+              data-active={filter === value}
+              onClick={() => setFilter(value)}
+            >
+              {value === 'all' ? 'All items' : value}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <ul className="inventory">
+        {filteredItems.map((item) => (
+          <li key={item.id} className={`rarity-${item.rarity}`}>
+            <div>
+              <strong>{item.name}</strong>
+              <p>{item.description}</p>
+            </div>
+            <footer>
+              <span>{item.type}</span>
+              <button type="button" onClick={() => toggleEquip(item.id)}>
+                {item.equipped ? 'Remove from loadout' : 'Add to loadout'}
+              </button>
+            </footer>
+          </li>
+        ))}
+      </ul>
+
+      {filteredItems.length === 0 && <p className="empty">No items match your filters yet.</p>}
+    </section>
+  );
+}
+
+export const inventoryPanelStyles = `
+.inventory-panel {
+  display: grid;
+  gap: 20px;
+}
+
+.inventory-panel header h2 {
+  margin-bottom: 4px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.toolbar input[type='search'] {
+  flex: 1 1 220px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.35);
+  color: inherit;
+}
+
+.filters {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.filters button {
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid transparent;
+  color: inherit;
+}
+
+.filters button[data-active='true'] {
+  background: linear-gradient(135deg, #22d3ee, #3b82f6);
+  color: #0f172a;
+}
+
+.inventory {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 16px;
+}
+
+.inventory li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.inventory li footer {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.inventory li button {
+  border-radius: 999px;
+  padding: 8px 18px;
+  border: none;
+  background: linear-gradient(135deg, #4ade80, #22c55e);
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.inventory li.rarity-epic {
+  border-color: rgba(168, 85, 247, 0.6);
+}
+
+.inventory li.rarity-legendary {
+  border-color: rgba(251, 191, 36, 0.6);
+}
+
+.inventory-panel .empty {
+  text-align: center;
+  color: rgba(148, 163, 184, 0.85);
+}
+`;
